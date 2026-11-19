@@ -2,10 +2,10 @@
    input it accepts; portals and rebuilds remain owned by Scene/FrostwoodWorld. */
 export const MUSIC_TRACKS=Object.freeze({
   frostwood:Object.freeze({asset:'veil',title:'Veil of Dreams'}),
-  /* BORROWED. The meadow's piece, Sunny Stroll, is a paid track with no
-     redistribution grant, so the repository does not carry it. assets/music/
-     CREDITS.md lists the licence of each file that ships. */
-  meadow:Object.freeze({asset:'veil',title:'Veil of Dreams',placeholder:true}),
+  /* OPTIONAL FILE. Sunny Stroll is a paid track with no redistribution grant
+     (assets/music/CREDITS.md), so a public tree has no such file. `without`
+     names the scene whose piece plays then. */
+  meadow:Object.freeze({asset:'sunny',title:'Sunny Stroll',without:'frostwood'}),
   swamp:Object.freeze({asset:'lily',title:'Lily — Paddling Down the Stream'}),
   /* BORROWED, AND SAID SO IN THE DATA RATHER THAN IN A COMMENT. Every other
      world has a piece written for it and this one does not yet, so it plays
@@ -24,8 +24,11 @@ export const CROSSFADE_S=3;
 export const STOP_FADE_S=0.8;
 export const MUSIC_VOLUME=Object.freeze({min:0,max:1,step:0.05,default:0.30});
 
-export function musicTrackForScene(sceneId){
-  return MUSIC_TRACKS[sceneId]||null;
+/* `assets` is the bundle's asset table. A row with `without` resolves to that
+   scene's row when its own file is absent, so the title names what plays. */
+export function musicTrackForScene(sceneId,assets){
+  const track=MUSIC_TRACKS[sceneId]||null;
+  return track?.without&&assets&&!assets[track.asset]?MUSIC_TRACKS[track.without]:track;
 }
 
 export function travellerMoved(x0,y0,x1,y1){
@@ -67,7 +70,7 @@ export class BiomeMusic{
     this.changeToken=0;
   }
 
-  get track(){ return musicTrackForScene(this.sceneId); }
+  get track(){ return musicTrackForScene(this.sceneId,this.assets); }
   get title(){ return this.track?.title||'Music'; }
   get playing(){ return !!this.voice&&this.enabled&&this.movementStarted; }
 
@@ -94,7 +97,8 @@ export class BiomeMusic{
     const ctx=this.ensureContext();
     if(!ctx) return Promise.resolve(false);
     this.ready=(async()=>{
-      const assets=new Set(Object.values(MUSIC_TRACKS).map((track)=>track.asset));
+      const assets=new Set(Object.keys(MUSIC_TRACKS)
+        .map((sceneId)=>musicTrackForScene(sceneId,this.assets).asset));
       await Promise.all([...assets].map(async(asset)=>{
         const url=this.assets[asset];
         if(!url) throw new Error(`missing music asset '${asset}'`);
@@ -134,7 +138,7 @@ export class BiomeMusic{
   }
 
   async switchTo(sceneId,fade){
-    const track=musicTrackForScene(sceneId);
+    const track=musicTrackForScene(sceneId,this.assets);
     if(!track||!this.enabled||!this.movementStarted||this.disposed) return;
     if(this.voice?.sceneId===sceneId) return;
     const token=++this.changeToken;

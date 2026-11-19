@@ -151,9 +151,10 @@ exceptions that no physical law can choose.
   general place search or beauty-search interface.
 - Night is not represented. Dialogue, quests, and persistent game saves remain
   outside the compiler's scope.
-- Frostwood and Green Swamp have their own music. Sun Meadow, Amber Waste and
-  Amethyst Hollow borrow Frostwood's piece, and `MUSIC_TRACKS` in
-  [src/music.js](src/music.js) names each borrower.
+- Frostwood and Green Swamp have their own music. Amber Waste and Amethyst
+  Hollow borrow Frostwood's piece. Sun Meadow's piece is an optional paid file.
+  A tree without the file plays Frostwood's piece in Sun Meadow. See
+  [assets/music/CREDITS.md](assets/music/CREDITS.md).
 
 ## Create a new world
 
@@ -451,8 +452,10 @@ Code and documentation are under the [MIT licence](LICENSE), copyright Trinity
 Labs Pte. Ltd. Third-party material keeps its own licence:
 
 - **Music:** Veil of Dreams and Lily-Paddling Down the Stream by
-  [Fablefly Music](https://fablefly-music.itch.io/), CC BY 4.0. See
-  [assets/music/CREDITS.md](assets/music/CREDITS.md).
+  [Fablefly Music](https://fablefly-music.itch.io/), CC BY 4.0. The hosted
+  demo also plays their track Sunny Stroll, an optional file that the public
+  repository does not carry.
+  See [assets/music/CREDITS.md](assets/music/CREDITS.md).
 - **Font:** Pixelify Sans, SIL Open Font License 1.1. See
   [assets/fonts/OFL.txt](assets/fonts/OFL.txt).
 - **Runtime library:** [three.js](https://threejs.org/), MIT. The build bundles

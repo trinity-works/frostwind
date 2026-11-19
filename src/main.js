@@ -1,6 +1,7 @@
 import { wormAt as __wormAtFn } from './worm.js';
 import dreamMachines from '../docs/images/machines.png';
 import lilyMusic from '../assets/music/lily-paddling-down-the-stream.mp3';
+import sunnyMusic from '../assets/music/sunny-stroll.mp3?optional';
 import veilMusic from '../assets/music/veil-of-dreams.mp3';
 import pixelFont400 from '../assets/fonts/pixelify-sans-latin-400-normal.woff2';
 import pixelFont700 from '../assets/fonts/pixelify-sans-latin-700-normal.woff2';
@@ -99,7 +100,7 @@ let W;
 try{ W=new FrostwoodWorld(cv); }
 catch(e){ boom('The renderer failed to start.', String(e&&e.message||e)); throw e; }
 
-const music=new BiomeMusic({lily:lilyMusic,veil:veilMusic});
+const music=new BiomeMusic({lily:lilyMusic,sunny:sunnyMusic,veil:veilMusic});
 const musicEl=$('music'),musicTrack=$('music-track');
 const musicVolume=$('music-volume'),worldTitle=$('world-title'),movementHint=$('hint');
 musicVolume.min=MUSIC_VOLUME.min;

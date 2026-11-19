@@ -6,6 +6,7 @@
 
 import { chromium } from 'playwright';
 import { spawn, spawnSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { access, mkdir, mkdtemp, rm } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -57,7 +58,9 @@ const SHOTS = Object.freeze([
     travelX: 120,
     travelY: 48,
     traveller: Object.freeze({ dx: 0, dy: -64, vx: 0, vy: 16, path: true }),
-    music: resolve(ROOT, 'assets/music/veil-of-dreams.mp3'),
+    /* Optional file: assets/music/CREDITS.md. */
+    music: [resolve(ROOT, 'assets/music/sunny-stroll.mp3'),
+      resolve(ROOT, 'assets/music/veil-of-dreams.mp3')].find(existsSync),
   }),
   Object.freeze({
     scene: 'swamp',

@@ -55,6 +55,7 @@ class FakeContext{
 
 const TRACK_ASSETS={
   lily:'data:application/octet-stream;base64,AA==',
+  sunny:'data:application/octet-stream;base64,AQ==',
   veil:'data:application/octet-stream;base64,Ag==',
 };
 const settle=()=>new Promise((resolve)=>setImmediate(resolve));
@@ -71,7 +72,7 @@ test('every scene selects its authored biome track',()=>{
   for(const [id,name] of Object.entries(WORLD_NAMES)) assert.equal(SCENES[id].name,name);
   assert.deepEqual(musicTrackForScene('frostwood'),{asset:'veil',title:'Veil of Dreams'});
   assert.deepEqual(musicTrackForScene('meadow'),
-    {asset:'veil',title:'Veil of Dreams',placeholder:true});
+    {asset:'sunny',title:'Sunny Stroll',without:'frostwood'});
   assert.deepEqual(musicTrackForScene('swamp'),
     {asset:'lily',title:'Lily — Paddling Down the Stream'});
   assert.equal(musicTrackForScene('unknown'),null);
@@ -79,11 +80,35 @@ test('every scene selects its authored biome track',()=>{
      as a bug and worlds sharing a theme read as one world. The borrowers are
      named here, so the next one fails until it is listed or scored. */
   const borrowed=Object.entries(MUSIC_TRACKS).filter(([,t])=>t.placeholder);
-  assert.deepEqual(borrowed.map(([id])=>id),['meadow','desert','hollow'],
+  assert.deepEqual(borrowed.map(([id])=>id),['desert','hollow'],
     'a scene outside the named borrowers is playing a borrowed track');
   const own=Object.entries(MUSIC_TRACKS).filter(([,t])=>!t.placeholder);
   assert.equal(new Set(own.map(([,t])=>t.asset)).size,own.length,
     'two worlds claim the same authored track as their own');
+});
+
+/* AUTHORITY: assets/music/CREDITS.md. A tree without the optional file must
+   still load, and must name the piece it plays. */
+test('a scene whose optional file is absent plays the piece its row names',async()=>{
+  const {sunny,...carried}=TRACK_ASSETS;
+  assert.equal(musicTrackForScene('meadow',TRACK_ASSETS).title,'Sunny Stroll');
+  assert.equal(musicTrackForScene('meadow',carried),MUSIC_TRACKS.frostwood);
+  for(const [id,track] of Object.entries(MUSIC_TRACKS)){
+    if(track.without) assert.ok(MUSIC_TRACKS[track.without]&&!MUSIC_TRACKS[track.without].without,
+      `${id}: 'without' must name a scene whose file always ships`);
+  }
+
+  const ctx=new FakeContext();
+  const music=new BiomeMusic(carried,{contextFactory:()=>ctx});
+  music.syncScene('meadow');
+  await music.unlock();
+  music.begin();
+  assert.equal(await music.ready,true,String(music.error));
+  await settle();
+  assert.equal(music.title,'Veil of Dreams');
+  assert.equal(music.voice.sceneId,'meadow');
+  assert.equal(music.voice.source.buffer,music.buffers.get('veil'));
+  music.dispose?.();
 });
 
 test('the first-movement gate ignores a stationary or blocked traveller',()=>{

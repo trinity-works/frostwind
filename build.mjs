@@ -30,6 +30,7 @@
 
 import * as esbuild from 'esbuild';
 import { brotliCompressSync, gzipSync, constants } from 'node:zlib';
+import { existsSync } from 'node:fs';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -95,6 +96,22 @@ const workerSourcePlugin = {
   },
 };
 
+/* `import x from './file?optional'`: a file with no redistribution grant is
+   absent from a public tree (assets/music/CREDITS.md). Present, it loads by
+   its extension. Absent, it bundles as null and its reader names the
+   substitute. */
+const optionalAssetPlugin = {
+  name: 'optional-asset',
+  setup(build) {
+    build.onResolve({ filter: /\?optional$/ }, (args) => {
+      const path = resolve(args.resolveDir, args.path.replace(/\?optional$/, ''));
+      return existsSync(path) ? { path } : { path, namespace: 'absent-asset' };
+    });
+    build.onLoad({ filter: /.*/, namespace: 'absent-asset' },
+      () => ({ contents: 'export default null;', loader: 'js' }));
+  },
+};
+
 /* The entry bundle is the one JS output. With the `file` loader the result
    also carries the audio, which goes to disk untouched. */
 const isEntryBundle = (f) => f.path.endsWith('.js');
@@ -155,7 +172,7 @@ const options = {
   },
   write: false,
   logLevel: 'info',
-  plugins: TARGET.worker ? [workerSourcePlugin] : [],
+  plugins: [optionalAssetPlugin, ...(TARGET.worker ? [workerSourcePlugin] : [])],
   /* `file` emits real files, so esbuild needs an outdir and a URL. Absolute:
      the page is served from the root and the inlined bundle has no path of
      its own. */

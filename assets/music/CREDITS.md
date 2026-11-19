@@ -11,7 +11,17 @@ licence.
 
 Changes: both files are re-encoded to 96 kb/s MP3.
 
-Sun Meadow's piece, Sunny Stroll, is a paid track with no redistribution grant.
-The repository does not carry it, and `MUSIC_TRACKS` in `src/music.js` names
-the meadow as a borrower of Veil of Dreams. Add a track here only with a
-licence that allows redistribution of the file, and record it in this table.
+## Optional file
+
+`sunny-stroll.mp3` is Sun Meadow's piece,
+[Sunny Stroll](https://fablefly-music.itch.io/sunny-stroll). It is a paid track,
+royalty-free for use in a project, with no grant to redistribute the file. The
+public distribution does not carry it. Buy the track and place the file here,
+and the build picks it up.
+
+`src/main.js` imports it with `?optional`. With no file, the build bundles
+`null`, and the `without` field of `MUSIC_TRACKS` in `src/music.js` makes Sun
+Meadow play Veil of Dreams.
+
+Add a track to the public distribution only with a licence that allows
+redistribution of the file, and record it in the table.

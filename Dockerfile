@@ -16,7 +16,7 @@ RUN npm ci
 COPY . .
 
 # The web target, not the default one. Same entry and same shell as the file you
-# can hand somebody on a thumb drive; it differs only in that the music
+# can hand somebody on a thumb drive; it differs only in that the three music
 # tracks sit beside the page instead of inside it, which is what takes first
 # load from ~2.9 MB to ~590 KB. See the header of build.mjs for why that cannot
 # be the default: BiomeMusic fetch()es its tracks, and fetch of a relative path
